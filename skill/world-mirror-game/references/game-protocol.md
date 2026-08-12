@@ -113,3 +113,5 @@ Python 状态机读取上一回合、当前存档和候选回合：
 - `fragment_count`：状态为 `connected` 的核心碎片数量。
 
 两项都由 Python 根据存档计算。模型不得自行修改，不显示碎片总数，也不得增加其他进度字段。
+
+运行时必须使用 `turn_machine.py accept ... --render`，让接受和 Markdown 渲染在同一进程中完成。标准输出就是最终玩家消息；候选 JSON 只是中间文件，不得直接展示。

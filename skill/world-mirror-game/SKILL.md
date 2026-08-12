@@ -41,12 +41,11 @@ description: 运行“世界之镜”纯文本解谜游戏。为每位玩家生�
 3. 调用：
 
 ```bash
-python3 scripts/turn_machine.py accept --previous <previous.json> --candidate <turn.json> --state <save.json> --config configs/layouts.json --game-config configs/game.json --next-state <next-save.json>
-python3 scripts/render_turn.py --turn <turn.json> --state <next-save.json> --config configs/layouts.json
+python3 scripts/turn_machine.py accept --previous <previous.json> --candidate <turn.json> --state <save.json> --config configs/layouts.json --game-config configs/game.json --next-state <next-save.json> --render
 ```
 
 4. 若失败，按错误信息修正 JSON 并重新运行；不得绕过校验。
-5. 成功后，将脚本标准输出作为本轮完整回复原样展示，不添加开场白、总结或额外选项。
+5. `--render` 会在接受后直接输出最终 Markdown。将该标准输出作为本轮完整回复原样展示，不运行第二条渲染命令，不展示候选 JSON，也不添加开场白、总结或额外选项。
 6. 宿主无文件或命令工具时进入兼容模式：严格仿照相同字段和状态规则渲染，并在本局开场注明“格式校验：兼容模式”。
 
 每个回合的 `progress` 必须且只能包含 `projection_count`（投射次数）与 `fragment_count`（已连接的碎片收集个数）。数值由状态机从存档计算；不得显示总数或其他进度项。

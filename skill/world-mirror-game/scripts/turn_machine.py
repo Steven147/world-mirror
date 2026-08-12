@@ -1,9 +1,15 @@
 #!/usr/bin/env python3
 import argparse
+import importlib.util
 import json
 import os
 import tempfile
 from pathlib import Path
+
+RENDER_PATH = Path(__file__).with_name("render_turn.py")
+RENDER_SPEC = importlib.util.spec_from_file_location("world_mirror_render_turn", RENDER_PATH)
+render_turn = importlib.util.module_from_spec(RENDER_SPEC)
+RENDER_SPEC.loader.exec_module(render_turn)
 
 EXIT_REJECTED = 2
 
@@ -135,6 +141,7 @@ def main():
     accept = sub.add_parser("accept")
     for name in ("previous", "candidate", "state", "config", "game-config", "next-state"):
         accept.add_argument(f"--{name}", required=True)
+    accept.add_argument("--render", action="store_true", help="接受后直接输出最终 Markdown")
     args = parser.parse_args()
     previous, candidate, state = load(args.previous), load(args.candidate), load(args.state)
     layout, game = load(args.config), load(args.game_config)
@@ -147,7 +154,15 @@ def main():
         reject(["progress 必须且只能包含 projection_count 与 fragment_count"])
     if progress != expected:
         reject([f"progress 与状态机计算不一致：应为 {expected}，实际为 {progress}"])
-    atomic_write(args.next_state, next_state)
-    print(json.dumps({"accepted": True, "turn": next_state["turn"], "label": next_state["label"], "completed": next_state.get("completed", False)}, ensure_ascii=False))
+    if args.render:
+        render_errors = render_turn.validate(candidate, next_state, layout)
+        if render_errors:
+            reject(render_errors)
+        markdown = render_turn.render(candidate, layout["section_titles"])
+        atomic_write(args.next_state, next_state)
+        print(markdown, end="")
+    else:
+        atomic_write(args.next_state, next_state)
+        print(json.dumps({"accepted": True, "turn": next_state["turn"], "label": next_state["label"], "completed": next_state.get("completed", False)}, ensure_ascii=False))
 
 if __name__ == "__main__": main()

@@ -3,6 +3,7 @@ import importlib.util
 import json
 import tempfile
 import unittest
+import subprocess
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -70,5 +71,20 @@ class MachineTest(unittest.TestCase):
         self.assertEqual(expected,{"projection_count":1,"fragment_count":0})
         current["fragments"]["F01"]="connected"
         self.assertEqual(tm.expected_progress(current,GAME),{"projection_count":1,"fragment_count":1})
+    def test_accept_and_render_outputs_two_progress_lines(self):
+        with tempfile.TemporaryDirectory() as directory:
+            result=subprocess.run([
+                "python3",str(ROOT/"scripts"/"turn_machine.py"),"accept",
+                "--previous",str(ROOT/"examples"/"turn-001-oracle.json"),
+                "--candidate",str(ROOT/"examples"/"turn-002-resolution.json"),
+                "--state",str(ROOT/"examples"/"save.initial.json"),
+                "--config",str(ROOT/"configs"/"layouts.json"),
+                "--game-config",str(ROOT/"configs"/"game.json"),
+                "--next-state",str(Path(directory)/"next.json"),"--render"
+            ],capture_output=True,text=True,check=True)
+        self.assertIn("- 投射次数：1",result.stdout)
+        self.assertIn("- 碎片收集个数：0",result.stdout)
+        self.assertNotIn("- 总数：",result.stdout)
+        self.assertNotIn('"progress"',result.stdout)
 
 if __name__=="__main__": unittest.main()
