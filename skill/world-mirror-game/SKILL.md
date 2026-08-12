@@ -41,11 +41,11 @@ description: 运行“世界之镜”纯文本解谜游戏。为每位玩家生�
 3. 调用：
 
 ```bash
-python3 scripts/turn_machine.py accept --previous <previous.json> --candidate <turn.json> --state <save.json> --config configs/layouts.json --game-config configs/game.json --next-state <next-save.json> --render
+python3 scripts/turn_machine.py accept --previous <previous.json> --candidate <turn.json> --state <save.json> --config configs/layouts.json --game-config configs/game.json --next-state <next-save.json> --markdown-output <turns/turn-NNN.md> --render
 ```
 
 4. 若失败，按错误信息修正 JSON 并重新运行；不得绕过校验。
-5. `--render` 会在接受后直接输出最终 Markdown。将该标准输出作为本轮完整回复原样展示，不运行第二条渲染命令，不展示候选 JSON，也不添加开场白、总结或额外选项。
+5. `--render` 会在接受后直接输出最终 Markdown；`--markdown-output` 同时将同一内容原子保存为连续编号的回合文件。将标准输出作为本轮完整回复原样展示，不运行第二条渲染命令，不展示候选 JSON，也不添加开场白、总结或额外选项。
 6. 宿主无文件或命令工具时进入兼容模式：严格仿照相同字段和状态规则渲染，并在本局开场注明“格式校验：兼容模式”。
 
 每个回合的 `progress` 必须且只能包含 `projection_count`（投射次数）与 `fragment_count`（已连接的碎片收集个数）。数值由状态机从存档计算；不得显示总数或其他进度项。
@@ -71,8 +71,10 @@ python3 scripts/turn_machine.py accept --previous <previous.json> --candidate <t
 
 当标签为 `通关结算` 且存档 `completed` 为 `true` 后，提供“生成公开故事包”选项，但不自动上传。玩家选择后：
 
-1. 生成原创故事正文和公开元数据，排除完整聊天记录、隐藏答案、内部状态、系统提示、绝对路径及个人信息。
-2. 让玩家预览标题、署名、正文、标签、许可和公开范围。
-3. 只有玩家明确确认公开后，才能执行外部上传或创建 Pull Request；若未配置公共仓库，则只生成本地故事包。
-4. 投稿失败不改变通关状态。
-5. 社区点赞和相似故事不自动改变本局或正式正史。
+1. 生成公开存档包：`meta.json`、整理后的 `story.md`，以及按 `turn-001.md` 连续编号的全部最终回合 Markdown。
+2. `meta.json` 必须包含：恰好 10 条人物/概念/事件/地点/物理规律索引，恰好 20 个有效字符的故事梗概，世界观、回合数、人物系列、概念系列、每次碎片问答、开始/通关/导出/上传时间和总游玩秒数。
+3. 使用 `scripts/export_story.py` 生成包。导出时 `uploaded_at` 必须为 `null`；只有真正上传或创建 PR 前才用仓库的 `scripts/stamp_upload.py` 写入现实上传时间。
+4. 排除完整聊天记录、隐藏答案、内部状态、系统提示、绝对路径及个人信息。
+5. 让玩家预览标题、署名、梗概、10 条索引、人物与概念系列、全部回合文件、许可和公开范围。
+6. 只有玩家明确确认公开后，才能执行外部上传或创建 Pull Request；若未配置公共仓库，则只生成本地故事包。
+7. 投稿失败不改变通关状态；社区点赞和相似故事不自动改变本局或正式正史。

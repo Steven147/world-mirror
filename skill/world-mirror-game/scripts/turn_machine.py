@@ -4,6 +4,7 @@ import importlib.util
 import json
 import os
 import tempfile
+from datetime import datetime
 from pathlib import Path
 
 RENDER_PATH = Path(__file__).with_name("render_turn.py")
@@ -34,6 +35,15 @@ def atomic_write(path, value):
     finally:
         if os.path.exists(temporary): os.unlink(temporary)
 
+def atomic_write_text(path, value):
+    target=Path(path); target.parent.mkdir(parents=True,exist_ok=True)
+    fd,temporary=tempfile.mkstemp(prefix=f".{target.name}.",dir=target.parent)
+    try:
+        with os.fdopen(fd,"w",encoding="utf-8") as handle: handle.write(value)
+        os.replace(temporary,target)
+    finally:
+        if os.path.exists(temporary): os.unlink(temporary)
+
 def all_fragments_connected(state, game):
     return all(state.get("fragments", {}).get(item) == "connected" for item in game["required_core_fragments"])
 
@@ -49,6 +59,11 @@ def expected_progress(state, game):
         "fragment_count": connected_fragment_count(state, game),
     }
 
+def parse_real_time(value):
+    parsed = datetime.fromisoformat(value)
+    if parsed.tzinfo is None: raise ValueError("timezone required")
+    return parsed
+
 def advance_fragment(current, requested, order):
     if current not in order or requested not in order: return False
     return order.index(requested) == order.index(current) + 1
@@ -60,6 +75,7 @@ def validate(previous, candidate, state, layout, game):
     candidate_label = candidate.get("meta", {}).get("label")
     previous_turn = previous.get("meta", {}).get("turn")
     candidate_turn = candidate.get("meta", {}).get("turn")
+    candidate_real_time = candidate.get("meta", {}).get("real_time")
 
     if state.get("completed") is True:
         errors.append("本局已经通关，不再接受新游戏回合")
@@ -74,6 +90,11 @@ def validate(previous, candidate, state, layout, game):
     history_limit = game.get("max_consecutive_history_turns", 3)
     if previous_label == "自由追溯历史" and candidate_label == "自由追溯历史" and history_streak >= history_limit:
         errors.append(f"自由追溯历史最多连续 {history_limit} 回合，下一状态必须是越界投射")
+    try:
+        current_time=parse_real_time(candidate_real_time)
+        previous_time=parse_real_time(previous.get("meta",{}).get("real_time"))
+        if current_time < previous_time: errors.append("候选回合现实时间不能早于上一回合")
+    except (ValueError,TypeError): errors.append("每个回合 meta.real_time 必须是带时区的 ISO 8601 时间戳")
 
     spec = layout.get("states", {}).get(candidate_label, {})
     for key in spec.get("required", []):
@@ -82,7 +103,7 @@ def validate(previous, candidate, state, layout, game):
         if key in candidate: errors.append(f"{candidate_label} 禁止区块：{key}")
 
     updates = candidate.get("state_updates", {})
-    allowed_update_keys = {"fragment"} if previous_label == "收集碎片" else ({"claims"} if previous_label == "通关结算" else set())
+    allowed_update_keys = {"fragment", "fragment_answer"} if previous_label == "收集碎片" else ({"claims"} if previous_label == "通关结算" else set())
     extra = set(updates) - allowed_update_keys
     if extra: errors.append(f"{previous_label} 不允许状态更新：{sorted(extra)}")
     return errors
@@ -103,6 +124,20 @@ def apply_updates(previous, candidate, state, layout, game):
         if not advance_fragment(current_status, requested_status, game["fragment_status_order"]):
             reject([f"碎片只能前进一个阶段：{fragment_id} {current_status} → {requested_status}"])
         next_state.setdefault("fragments", {})[fragment_id] = requested_status
+        answer=updates.get("fragment_answer")
+        if not isinstance(answer,dict) or set(answer)!={"fragment_id","question","answer","passed","answered_at"}:
+            reject(["碎片状态前进时必须提供完整 fragment_answer"])
+        if answer.get("fragment_id") != fragment_id or answer.get("passed") is not True:
+            reject(["fragment_answer 必须对应当前碎片且 passed=true"])
+        try: answered_at=parse_real_time(answer.get("answered_at"))
+        except (ValueError,TypeError): reject(["fragment_answer.answered_at 必须是带时区的 ISO 8601 时间戳"])
+        turn_time=parse_real_time(candidate["meta"]["real_time"])
+        if answered_at > turn_time: reject(["碎片回答时间不能晚于当前回合现实时间"])
+        record=dict(answer)
+        record["collected_at"]=candidate["meta"]["real_time"] if requested_status=="connected" else None
+        next_state.setdefault("fragment_answers",[]).append(record)
+    elif previous_label == "收集碎片" and "fragment_answer" in updates:
+        reject(["fragment_answer 不能脱离 fragment 更新单独出现"])
 
     fragments_complete = all_fragments_connected(next_state, game)
     if previous_label == "收集碎片":
@@ -125,6 +160,8 @@ def apply_updates(previous, candidate, state, layout, game):
     next_state["label"] = requested_label
     next_state["turn"] = candidate["meta"]["turn"]
     next_state["last_turn_id"] = candidate["meta"].get("id")
+    next_state.setdefault("started_at", previous.get("meta",{}).get("real_time"))
+    next_state["last_real_time"] = candidate["meta"]["real_time"]
     if requested_label == "自由追溯历史":
         if previous_label == "自由追溯历史":
             next_state["history_streak"] = next_state.get("history_streak", 0) + 1
@@ -142,6 +179,7 @@ def main():
     for name in ("previous", "candidate", "state", "config", "game-config", "next-state"):
         accept.add_argument(f"--{name}", required=True)
     accept.add_argument("--render", action="store_true", help="接受后直接输出最终 Markdown")
+    accept.add_argument("--markdown-output", help="接受后原子保存最终回合 Markdown")
     args = parser.parse_args()
     previous, candidate, state = load(args.previous), load(args.candidate), load(args.state)
     layout, game = load(args.config), load(args.game_config)
@@ -160,6 +198,7 @@ def main():
             reject(render_errors)
         markdown = render_turn.render(candidate, layout["section_titles"])
         atomic_write(args.next_state, next_state)
+        if args.markdown_output: atomic_write_text(args.markdown_output,markdown)
         print(markdown, end="")
     else:
         atomic_write(args.next_state, next_state)

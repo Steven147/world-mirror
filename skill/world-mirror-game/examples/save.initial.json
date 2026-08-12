@@ -7,6 +7,9 @@
   "fragments": {"F01":"locked","F02":"locked","F03":"locked","F04":"locked","F05":"locked","F06":"locked","F07":"locked","F08":"locked"},
   "claims": {"C01":false,"C02":false,"C03":false,"C04":false},
   "projection_count": 1,
+  "started_at": "2026-08-13T01:00:00+08:00",
+  "last_real_time": "2026-08-13T01:00:00+08:00",
+  "fragment_answers": [],
   "history_streak": 0,
   "completed": false
 }

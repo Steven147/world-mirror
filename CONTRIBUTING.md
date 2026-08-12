@@ -3,8 +3,9 @@
 1. Fork 本仓库并创建分支。
 2. 复制 `stories/_template` 到 `stories/<world-id>/<story-id>`。
 3. 填写 `story.md` 和 `meta.json`。
-4. 运行 `python3 scripts/validate_stories.py`。
-5. 提交 Pull Request，并确认你有权公开所提交的内容。
+4. 在真正上传前运行 `python3 scripts/stamp_upload.py stories/<world-id>/<story-id>/meta.json`，写入现实上传时间。
+5. 运行 `python3 scripts/validate_stories.py`。
+6. 提交 Pull Request，并确认你有权公开所提交的内容。
 
 ## 内容边界
 

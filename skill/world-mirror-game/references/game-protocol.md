@@ -114,4 +114,12 @@ Python 状态机读取上一回合、当前存档和候选回合：
 
 两项都由 Python 根据存档计算。模型不得自行修改，不显示碎片总数，也不得增加其他进度字段。
 
-运行时必须使用 `turn_machine.py accept ... --render`，让接受和 Markdown 渲染在同一进程中完成。标准输出就是最终玩家消息；候选 JSON 只是中间文件，不得直接展示。
+运行时必须使用 `turn_machine.py accept ... --markdown-output turns/turn-NNN.md --render`，让接受、Markdown 渲染和回合归档在同一进程中完成。标准输出就是最终玩家消息；保存文件必须与标准输出完全相同。候选 JSON 只是中间文件，不得直接展示。
+
+## 现实时间与碎片问答
+
+- 每个回合的 `meta.real_time` 必须是带时区的 ISO 8601 现实时间戳，并显示在回合 Markdown 中。
+- 时间不得早于上一回合；存档维护 `started_at` 与 `last_real_time`。
+- 碎片状态前进时，`state_updates` 必须同时携带 `fragment_answer`：碎片 ID、问题、玩家回答、是否通过和回答时间。
+- 状态机记录每次问答；碎片首次达到 `connected` 时，将该回合现实时间写为 `collected_at`。
+- 这些记录用于计算总游玩时间、每个碎片的回答时间和收集时间，不使用镜机纪时替代。

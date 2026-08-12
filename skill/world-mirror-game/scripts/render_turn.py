@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse, json, re, sys
+from datetime import datetime
 from pathlib import Path
 
 def load(path):
@@ -25,6 +26,10 @@ def validate(turn, state, config):
     expected={"projection_count":state.get("projection_count",0),"fragment_count":sum(value=="connected" for value in state.get("fragments",{}).values())}
     if not isinstance(progress,dict) or set(progress)!=set(expected): errors.append("progress 必须且只能包含 projection_count 与 fragment_count")
     elif progress!=expected: errors.append(f"progress 与存档不一致：应为 {expected}")
+    try:
+        real_time=datetime.fromisoformat(turn.get("meta",{}).get("real_time",""))
+        if real_time.tzinfo is None: raise ValueError
+    except (ValueError,TypeError): errors.append("meta.real_time 必须是带时区的 ISO 8601 时间戳")
     if label=="越界投射":
         options=turn.get("oracle",{}).get("options",[])
         if not any("沉默" in str(item.get("text","")) for item in options if isinstance(item,dict)): errors.append("越界投射必须包含沉默选项")
@@ -38,7 +43,7 @@ def render_value(value):
     return [str(value)]
 
 def render(turn,titles):
-    meta=turn["meta"]; out=[f"# 世界之镜 · 第 {meta['turn']} 回合","",f"> 当前阶段：{meta['label']}",f"> 本局样式：{meta.get('style','默认')}"]
+    meta=turn["meta"]; out=[f"# 世界之镜 · 第 {meta['turn']} 回合","",f"> 当前阶段：{meta['label']}",f"> 现实时间：{meta['real_time']}",f"> 本局样式：{meta.get('style','默认')}"]
     order=["time","progress","creator","oracle","resolution","mirror_change","collection","history","completion","fragments","echoes","statistics","actions","prompt"]
     for key in order:
         if key not in turn: continue
