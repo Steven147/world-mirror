@@ -18,7 +18,7 @@ def turn(label,number,**extra):
 
 def state(label="越界投射",number=1,connected=False):
     status="connected" if connected else "locked"
-    return {"label":label,"turn":number,"fragments":{x:status for x in GAME["required_core_fragments"]},"claims":{x:False for x in GAME["completion_claims"]},"completed":False}
+    return {"label":label,"turn":number,"fragments":{x:status for x in GAME["required_core_fragments"]},"claims":{x:False for x in GAME["completion_claims"]},"history_streak":0,"completed":False}
 
 class MachineTest(unittest.TestCase):
     def accepted(self,previous,candidate,current):
@@ -50,5 +50,19 @@ class MachineTest(unittest.TestCase):
         self.assertTrue(current["completed"])
         errors=tm.validate(previous,turn("通关结算",13),current,LAYOUT,GAME)
         self.assertTrue(any("已经通关" in x for x in errors))
+    def test_history_can_repeat_three_times_then_forces_oracle(self):
+        current=state("收集碎片",3)
+        previous=turn("收集碎片",3)
+        candidate=turn("自由追溯历史",4,state_updates={"fragment":{"id":"F01","status":"hinted"}})
+        current=self.accepted(previous,candidate,current); previous=candidate
+        self.assertEqual(current["history_streak"],1)
+        for number in (5,6):
+            candidate=turn("自由追溯历史",number)
+            current=self.accepted(previous,candidate,current); previous=candidate
+        self.assertEqual(current["history_streak"],3)
+        errors=tm.validate(previous,turn("自由追溯历史",7),current,LAYOUT,GAME)
+        self.assertTrue(any("最多连续 3 回合" in x for x in errors))
+        current=self.accepted(previous,turn("越界投射",7),current)
+        self.assertEqual(current["history_streak"],0)
 
 if __name__=="__main__": unittest.main()

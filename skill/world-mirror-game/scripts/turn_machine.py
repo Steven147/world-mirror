@@ -55,6 +55,10 @@ def validate(previous, candidate, state, layout, game):
     if not isinstance(previous_turn, int) or candidate_turn != previous_turn + 1: errors.append("候选回合号必须是上一回合号加一")
     if candidate_label not in layout.get("transitions", {}).get(previous_label, []):
         errors.append(f"非法状态迁移：{previous_label} → {candidate_label}")
+    history_streak = state.get("history_streak", 0)
+    history_limit = game.get("max_consecutive_history_turns", 3)
+    if previous_label == "自由追溯历史" and candidate_label == "自由追溯历史" and history_streak >= history_limit:
+        errors.append(f"自由追溯历史最多连续 {history_limit} 回合，下一状态必须是越界投射")
 
     spec = layout.get("states", {}).get(candidate_label, {})
     for key in spec.get("required", []):
@@ -106,6 +110,13 @@ def apply_updates(previous, candidate, state, layout, game):
     next_state["label"] = requested_label
     next_state["turn"] = candidate["meta"]["turn"]
     next_state["last_turn_id"] = candidate["meta"].get("id")
+    if requested_label == "自由追溯历史":
+        if previous_label == "自由追溯历史":
+            next_state["history_streak"] = next_state.get("history_streak", 0) + 1
+        else:
+            next_state["history_streak"] = 1
+    elif requested_label == "越界投射":
+        next_state["history_streak"] = 0
     return next_state
 
 def main():
