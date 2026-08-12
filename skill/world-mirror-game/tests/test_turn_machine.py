@@ -71,6 +71,24 @@ class MachineTest(unittest.TestCase):
         self.assertEqual(expected,{"projection_count":1,"fragment_count":0})
         current["fragments"]["F01"]="connected"
         self.assertEqual(tm.expected_progress(current,GAME),{"projection_count":1,"fragment_count":1})
+    def test_skip_collection_forces_time_jump_to_next_concept(self):
+        current=state("收集碎片",3)
+        candidate=turn("越界投射",4,
+            progress={"projection_count":2,"fragment_count":0},
+            time_jump={"target_fragment_id":"F01","target_concept":"电磁生命","elapsed":"三百个当地周期","from_event":"针尖号返航","to_event":"早期生命遗迹被发现"},
+            state_updates={"skip_collection":{"reason":"no_new_core_concept","next_fragment_id":"F01"}})
+        result=self.accepted(turn("收集碎片",3),candidate,current)
+        self.assertEqual(result["projection_count"],2)
+        self.assertEqual(result["fragments"]["F01"],"locked")
+        self.assertEqual(result["last_skip"]["target_fragment_id"],"F01")
+    def test_skip_without_time_jump_is_rejected(self):
+        with self.assertRaises(SystemExit):
+            tm.apply_updates(turn("收集碎片",3),turn("越界投射",4,state_updates={"skip_collection":{"reason":"no_new_core_concept","next_fragment_id":"F01"}}),state("收集碎片",3),LAYOUT,GAME)
+    def test_skip_cannot_bypass_next_fragment(self):
+        candidate=turn("越界投射",4,
+            time_jump={"target_fragment_id":"F02","target_concept":"空间","elapsed":"百年","from_event":"旧事件","to_event":"新事件"},
+            state_updates={"skip_collection":{"reason":"no_new_core_concept","next_fragment_id":"F02"}})
+        with self.assertRaises(SystemExit): tm.apply_updates(turn("收集碎片",3),candidate,state("收集碎片",3),LAYOUT,GAME)
     def test_accept_and_render_outputs_two_progress_lines(self):
         with tempfile.TemporaryDirectory() as directory:
             markdown_path=Path(directory)/"turn-002.md"

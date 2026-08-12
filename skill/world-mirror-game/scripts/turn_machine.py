@@ -53,6 +53,9 @@ def all_claims_verified(state, game):
 def connected_fragment_count(state, game):
     return sum(state.get("fragments", {}).get(item) == "connected" for item in game["required_core_fragments"])
 
+def next_unconnected_fragment(state, game):
+    return next((item for item in game["required_core_fragments"] if state.get("fragments", {}).get(item) != "connected"), None)
+
 def expected_progress(state, game):
     return {
         "projection_count": state.get("projection_count", 0),
@@ -103,7 +106,7 @@ def validate(previous, candidate, state, layout, game):
         if key in candidate: errors.append(f"{candidate_label} 禁止区块：{key}")
 
     updates = candidate.get("state_updates", {})
-    allowed_update_keys = {"fragment", "fragment_answer"} if previous_label == "收集碎片" else ({"claims"} if previous_label == "通关结算" else set())
+    allowed_update_keys = {"fragment", "fragment_answer", "skip_collection"} if previous_label == "收集碎片" else ({"claims"} if previous_label == "通关结算" else set())
     extra = set(updates) - allowed_update_keys
     if extra: errors.append(f"{previous_label} 不允许状态更新：{sorted(extra)}")
     return errors
@@ -113,6 +116,24 @@ def apply_updates(previous, candidate, state, layout, game):
     previous_label = previous["meta"]["label"]
     requested_label = candidate["meta"]["label"]
     updates = candidate.get("state_updates", {})
+
+    if previous_label == "收集碎片" and "skip_collection" in updates:
+        skip=updates["skip_collection"]
+        if set(skip)!={"reason","next_fragment_id"} or skip.get("reason")!="no_new_core_concept":
+            reject(["skip_collection 必须声明 reason=no_new_core_concept 与 next_fragment_id"])
+        expected_target=next_unconnected_fragment(next_state,game)
+        if skip.get("next_fragment_id")!=expected_target:
+            reject([f"跳过后必须前往下一个未连接核心碎片：{expected_target}"])
+        if requested_label!="越界投射": reject(["跳过收集碎片后必须直接进入越界投射"])
+        if "fragment" in updates or "fragment_answer" in updates: reject(["跳过收集碎片时不能更新碎片或记录问答"])
+        jump=candidate.get("time_jump")
+        required_jump={"target_fragment_id","target_concept","elapsed","from_event","to_event"}
+        if not isinstance(jump,dict) or set(jump)!=required_jump: reject(["跳过后的越界投射必须提供完整 time_jump"])
+        if jump.get("target_fragment_id")!=expected_target: reject(["time_jump 目标碎片与跳过目标不一致"])
+        if not all(isinstance(jump.get(key),str) and jump[key].strip() for key in ("target_concept","elapsed","from_event","to_event")): reject(["time_jump 的概念、流逝量和前后事件不能为空"])
+        next_state["last_skip"]={"at":candidate["meta"]["real_time"],"target_fragment_id":expected_target,"time_jump":jump}
+    elif previous_label == "收集碎片" and requested_label == "越界投射":
+        reject(["收集碎片直接进入越界投射时必须提供 skip_collection"])
 
     if previous_label == "收集碎片" and "fragment" in updates:
         fragment = updates["fragment"]
@@ -147,6 +168,8 @@ def apply_updates(previous, candidate, state, layout, game):
             reject(["核心碎片已集齐，必须进入通关结算"])
         if requested_label == "收集碎片" and updates.get("fragment"):
             reject(["碎片问题已通过，不能停留在收集碎片"])
+        if "skip_collection" not in updates and requested_label == "越界投射":
+            reject(["没有合法跳过记录，不能直接进入越界投射"])
 
     if previous_label == "通关结算":
         claims = updates.get("claims", {})

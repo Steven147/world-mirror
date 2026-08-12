@@ -44,7 +44,7 @@ def render_value(value):
 
 def render(turn,titles):
     meta=turn["meta"]; out=[f"# 世界之镜 · 第 {meta['turn']} 回合","",f"> 当前阶段：{meta['label']}",f"> 现实时间：{meta['real_time']}",f"> 本局样式：{meta.get('style','默认')}"]
-    order=["time","progress","creator","oracle","resolution","mirror_change","collection","history","completion","fragments","echoes","statistics","actions","prompt"]
+    order=["time","progress","time_jump","creator","oracle","resolution","mirror_change","collection","history","completion","fragments","echoes","statistics","actions","prompt"]
     for key in order:
         if key not in turn: continue
         out += ["",f"## {titles.get(key,key)}",""]
