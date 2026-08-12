@@ -34,6 +34,15 @@ def all_fragments_connected(state, game):
 def all_claims_verified(state, game):
     return all(state.get("claims", {}).get(item) is True for item in game["completion_claims"])
 
+def connected_fragment_count(state, game):
+    return sum(state.get("fragments", {}).get(item) == "connected" for item in game["required_core_fragments"])
+
+def expected_progress(state, game):
+    return {
+        "projection_count": state.get("projection_count", 0),
+        "fragment_count": connected_fragment_count(state, game),
+    }
+
 def advance_fragment(current, requested, order):
     if current not in order or requested not in order: return False
     return order.index(requested) == order.index(current) + 1
@@ -117,6 +126,7 @@ def apply_updates(previous, candidate, state, layout, game):
             next_state["history_streak"] = 1
     elif requested_label == "越界投射":
         next_state["history_streak"] = 0
+        next_state["projection_count"] = next_state.get("projection_count", 0) + 1
     return next_state
 
 def main():
@@ -131,6 +141,12 @@ def main():
     errors = validate(previous, candidate, state, layout, game)
     if errors: reject(errors)
     next_state = apply_updates(previous, candidate, state, layout, game)
+    progress = candidate.get("progress")
+    expected = expected_progress(next_state, game)
+    if not isinstance(progress, dict) or set(progress) != set(expected):
+        reject(["progress 必须且只能包含 projection_count 与 fragment_count"])
+    if progress != expected:
+        reject([f"progress 与状态机计算不一致：应为 {expected}，实际为 {progress}"])
     atomic_write(args.next_state, next_state)
     print(json.dumps({"accepted": True, "turn": next_state["turn"], "label": next_state["label"], "completed": next_state.get("completed", False)}, ensure_ascii=False))
 

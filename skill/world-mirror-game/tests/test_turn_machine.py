@@ -12,13 +12,13 @@ LAYOUT=json.loads((ROOT/"configs"/"layouts.json").read_text())
 GAME=json.loads((ROOT/"configs"/"game.json").read_text())
 
 def turn(label,number,**extra):
-    required={"meta":{"id":f"T{number:03}","label":label,"turn":number},"time":{"mirror":"T+00:00:00"},"progress":{"connected":0,"total":8}}
+    required={"meta":{"id":f"T{number:03}","label":label,"turn":number},"time":{"mirror":"T+00:00:00"},"progress":{"projection_count":1,"fragment_count":0}}
     bodies={"越界投射":{"oracle":{"translated":"选择？","options":[{"id":"S","text":"保持沉默"}]}},"投射结算":{"resolution":"完成","mirror_change":"变化"},"收集碎片":{"creator":"问","collection":{"text":"答？","options":[{"id":"A","text":"答"}]}},"自由追溯历史":{"history":"历史","actions":["继续"]},"通关结算":{"completion":"重建"}}
     required.update(bodies[label]); required.update(extra); return required
 
 def state(label="越界投射",number=1,connected=False):
     status="connected" if connected else "locked"
-    return {"label":label,"turn":number,"fragments":{x:status for x in GAME["required_core_fragments"]},"claims":{x:False for x in GAME["completion_claims"]},"history_streak":0,"completed":False}
+    return {"label":label,"turn":number,"fragments":{x:status for x in GAME["required_core_fragments"]},"claims":{x:False for x in GAME["completion_claims"]},"projection_count":1,"history_streak":0,"completed":False}
 
 class MachineTest(unittest.TestCase):
     def accepted(self,previous,candidate,current):
@@ -64,5 +64,11 @@ class MachineTest(unittest.TestCase):
         self.assertTrue(any("最多连续 3 回合" in x for x in errors))
         current=self.accepted(previous,turn("越界投射",7),current)
         self.assertEqual(current["history_streak"],0)
+        self.assertEqual(current["projection_count"],2)
+    def test_progress_has_exactly_two_machine_values(self):
+        current=state(); expected=tm.expected_progress(current,GAME)
+        self.assertEqual(expected,{"projection_count":1,"fragment_count":0})
+        current["fragments"]["F01"]="connected"
+        self.assertEqual(tm.expected_progress(current,GAME),{"projection_count":1,"fragment_count":1})
 
 if __name__=="__main__": unittest.main()

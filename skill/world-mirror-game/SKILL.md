@@ -49,6 +49,8 @@ python3 scripts/render_turn.py --turn <turn.json> --state <next-save.json> --con
 5. 成功后，将脚本标准输出作为本轮完整回复原样展示，不添加开场白、总结或额外选项。
 6. 宿主无文件或命令工具时进入兼容模式：严格仿照相同字段和状态规则渲染，并在本局开场注明“格式校验：兼容模式”。
 
+每个回合的 `progress` 必须且只能包含 `projection_count`（投射次数）与 `fragment_count`（已连接的碎片收集个数）。数值由状态机从存档计算；不得显示总数或其他进度项。
+
 ## 问答与调查
 
 - 创造者问题来自 `data/questions.json`。按本局题序逐题提出，不显示正确答案。

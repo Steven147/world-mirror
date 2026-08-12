@@ -21,12 +21,16 @@ def validate(turn, state, config):
         if key in turn: errors.append(f"{label} 禁止区块：{key}")
     mirror=turn.get("time",{}).get("mirror","")
     if not re.fullmatch(r"T\+\d{2,}:[0-5]\d:[0-5]\d",mirror): errors.append("镜机时间格式应为 T+HH:MM:SS")
+    progress=turn.get("progress")
+    expected={"projection_count":state.get("projection_count",0),"fragment_count":sum(value=="connected" for value in state.get("fragments",{}).values())}
+    if not isinstance(progress,dict) or set(progress)!=set(expected): errors.append("progress 必须且只能包含 projection_count 与 fragment_count")
+    elif progress!=expected: errors.append(f"progress 与存档不一致：应为 {expected}")
     if label=="越界投射":
         options=turn.get("oracle",{}).get("options",[])
         if not any("沉默" in str(item.get("text","")) for item in options if isinstance(item,dict)): errors.append("越界投射必须包含沉默选项")
     return errors
 
-LABELS={"mirror":"镜机纪时","local":"当地时间","elapsed":"本轮流逝","fragments":"碎片进度","connected":"已连接","total":"总数","result":"判定","explanation":"说明","turns":"总回合"}
+LABELS={"mirror":"镜机纪时","local":"当地时间","elapsed":"本轮流逝","projection_count":"投射次数","fragment_count":"碎片收集个数","result":"判定","explanation":"说明","turns":"总回合"}
 def render_value(value):
     if isinstance(value,str): return [value]
     if isinstance(value,list): return [f"- {item}" for item in value]
