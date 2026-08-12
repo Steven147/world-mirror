@@ -1,0 +1,12 @@
+name: Validate stories
+on:
+  pull_request:
+    paths: ["stories/**"]
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 scripts/validate_stories.py

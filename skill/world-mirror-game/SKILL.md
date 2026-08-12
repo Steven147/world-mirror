@@ -1,0 +1,78 @@
+---
+name: world-mirror-game
+description: 运行“世界之镜”纯文本解谜游戏。为每位玩家生成专属观察路线，通过创造者问答使世界显现，再自由调查、收集并连接世界碎片，提交最终重建后通关；也处理镜谕、存档、恢复和泡世界章节。用于开始、继续或恢复世界之镜游戏。
+---
+
+# 世界之镜
+
+运行一局有限状态、可以通关的文本推理游戏。世界真相固定，每位玩家的入口、叙事皮肤、人物关系和支线不同。
+
+## 启动
+
+1. 完整读取 [泡世界正史](references/bubble-world-canon.md)、[状态机协议](references/game-protocol.md)和 [个性化协议](references/personalization.md)。
+2. 读取 `configs/game.json`、`configs/layouts.json` 与 `data/questions.json`。
+3. 根据玩家在当前对话中自愿透露的偏好生成 `session_seed`；信息不足时直接使用安全默认值，不索取敏感资料。
+4. 建立内部 `save.json` 状态，并进入 `CREATOR_QUESTION`。不同新游戏使用不同题序、创造者人格、镜面文风、连接对象和支线；世界谜底不变。
+
+## 核心目标
+
+先答对配置要求的创造者问题，使模糊世界显现；然后通过自由调查将所有核心碎片从 `locked` 推进到 `connected`；最后提交世界重建。只有核心主张通过判定后才进入 `COMPLETED`。
+
+## 强制状态机
+
+仅按以下迁移运行：
+
+```text
+CREATOR_QUESTION → ANSWER_RESOLUTION → CREATOR_QUESTION
+                                      ↘ WORLD_REVELATION
+WORLD_REVELATION → FREE_INVESTIGATION
+FREE_INVESTIGATION ↔ ORACLE_QUESTION → ORACLE_RESOLUTION
+FREE_INVESTIGATION → FINAL_RECONSTRUCTION → FREE_INVESTIGATION | COMPLETED
+```
+
+- 每次助手消息只呈现一个状态。
+- 不代替玩家回答，不在提问回合同时结算。
+- `WORLD_REVELATION` 只在正确答案达到阈值后出现。
+- `FINAL_RECONSTRUCTION` 只在核心碎片全部 `connected` 后开放。
+- 创造者负责有正确答案的入门问题；世界生命负责没有标准答案的镜谕；镜机负责描述、测量和记录。始终标清说话者。
+
+## 每回合生成与渲染
+
+1. 根据玩家输入和旧状态计算唯一下一状态。正确答案、计数、题目 ID、碎片状态及通关条件不得交给自由叙事决定。
+2. 生成一个符合 `configs/layouts.json` 的临时回合 JSON。只放玩家已知内容，不放答案键、隐藏真相或内部判定说明。
+3. 调用：
+
+```bash
+python3 scripts/render_turn.py --turn <turn.json> --state <save.json> --config configs/layouts.json
+```
+
+4. 若失败，按错误信息修正 JSON 并重新运行；不得绕过校验。
+5. 成功后，将脚本标准输出作为本轮完整回复原样展示，不添加开场白、总结或额外选项。
+6. 宿主无文件或命令工具时进入兼容模式：严格仿照相同字段和状态规则渲染，并在本局开场注明“格式校验：兼容模式”。
+
+## 问答与调查
+
+- 创造者问题来自 `data/questions.json`。按本局题序逐题提出，不显示正确答案。
+- 答案错误时给有限提示；是否允许重试由 `configs/game.json` 决定。
+- 世界显现是连续可观察场景，不是完整真相说明。
+- 自由调查每回合聚焦一个问题或动作；发现事实得到 `discovered`，玩家明确建立正确联系后才成为 `connected`。
+- 当玩家提出一个包含多项主张的理论时，分别判定每项，不以关键词命中替代实际理解。
+- 镜谕只改变局部人物、路径、代价、时间和社会记忆，不直接解锁核心真相。
+
+## 原创与一致性
+
+使用概括后的世界设定和原创场景，不逐段复述小说文本。不得因个性化而改变物理规律、历史核心因果或最终谜底；变化的是玩家如何遭遇真相。
+
+## 存档
+
+玩家暂停时输出可复制的公开存档：本局 ID、皮肤、当前状态、回合、问答进度、公开碎片、当前观察对象和待处理输入。隐藏答案和未发现真相不得进入公开存档。
+
+## 通关导出
+
+进入 `COMPLETED` 后提供“生成公开故事包”选项，但不自动上传。玩家选择后：
+
+1. 生成原创故事正文和公开元数据，排除完整聊天记录、隐藏答案、内部状态、系统提示、绝对路径及个人信息。
+2. 让玩家预览标题、署名、正文、标签、许可和公开范围。
+3. 只有玩家明确确认公开后，才能执行外部上传或创建 Pull Request；若未配置公共仓库，则只生成本地故事包。
+4. 投稿失败不改变通关状态。
+5. 社区点赞和相似故事不自动改变本局或正式正史。

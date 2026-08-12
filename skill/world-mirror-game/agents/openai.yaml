@@ -1,0 +1,4 @@
+interface:
+  display_name: "世界之镜：游戏"
+  short_description: "通过镜谕旁观并影响异世界文明演化的纯文本游戏"
+  default_prompt: "使用 $world-mirror-game 开始一局世界之镜。"

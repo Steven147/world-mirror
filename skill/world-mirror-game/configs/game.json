@@ -1,0 +1,9 @@
+{
+  "format_version": 1,
+  "world_id": "bubble-world",
+  "revelation_correct_answers": 5,
+  "wrong_answer_policy": "hint_then_advance",
+  "required_core_fragments": ["F01", "F02", "F03", "F04", "F05", "F06", "F07", "F08"],
+  "completion_claims": ["C01", "C02", "C03", "C04"],
+  "fragment_status_order": ["locked", "hinted", "discovered", "connected"]
+}

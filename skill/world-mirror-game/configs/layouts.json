@@ -1,0 +1,16 @@
+{
+  "format_version": 1,
+  "states": {
+    "CREATOR_QUESTION": {"required": ["meta", "time", "progress", "creator", "question"], "optional": ["fragments", "prompt"], "forbidden": ["resolution", "revelation", "investigation", "oracle", "reconstruction", "completion"]},
+    "ANSWER_RESOLUTION": {"required": ["meta", "time", "progress", "resolution", "mirror_change"], "optional": ["fragments", "prompt"], "forbidden": ["question", "revelation", "investigation", "oracle", "reconstruction", "completion"]},
+    "WORLD_REVELATION": {"required": ["meta", "time", "progress", "revelation", "mysteries", "actions"], "optional": ["fragments", "prompt"], "forbidden": ["question", "resolution", "investigation", "oracle", "reconstruction", "completion"]},
+    "FREE_INVESTIGATION": {"required": ["meta", "time", "progress", "investigation", "actions"], "optional": ["fragments", "echoes", "prompt"], "forbidden": ["question", "resolution", "revelation", "oracle", "reconstruction", "completion"]},
+    "ORACLE_QUESTION": {"required": ["meta", "time", "progress", "oracle"], "optional": ["fragments", "prompt"], "forbidden": ["question", "resolution", "revelation", "investigation", "reconstruction", "completion"]},
+    "ORACLE_RESOLUTION": {"required": ["meta", "time", "progress", "resolution", "mirror_change"], "optional": ["fragments", "echoes", "prompt"], "forbidden": ["question", "revelation", "investigation", "oracle", "reconstruction", "completion"]},
+    "FINAL_RECONSTRUCTION": {"required": ["meta", "time", "progress", "reconstruction"], "optional": ["fragments", "prompt"], "forbidden": ["question", "resolution", "revelation", "investigation", "oracle", "completion"]},
+    "COMPLETED": {"required": ["meta", "time", "completion", "statistics"], "optional": ["fragments", "echoes"], "forbidden": ["question", "resolution", "revelation", "investigation", "oracle", "reconstruction", "prompt"]}
+  },
+  "section_titles": {
+    "time": "时间", "progress": "进度", "creator": "创造者", "question": "问题", "resolution": "回答结算", "mirror_change": "镜面变化", "revelation": "世界显现", "investigation": "调查结果", "oracle": "越界投射", "mysteries": "未解之谜", "fragments": "世界碎片", "echoes": "回响", "reconstruction": "真相重建", "completion": "通关", "statistics": "本局记录", "actions": "可尝试", "prompt": "等待输入"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "story_id": "replace-with-unique-id",
+  "world_id": "bubble-world",
+  "title": "故事标题",
+  "author": {"display_name": "公开署名", "github": ""},
+  "completed_at": "2026-08-13",
+  "kind": "player-story",
+  "summary": "不超过一百五十字的故事摘要。",
+  "route": {"creator_voice": "", "entry_route": ""},
+  "fragments": [],
+  "themes": [],
+  "relations": [],
+  "consent": {"public": true, "license": "all-rights-reserved"}
+}
