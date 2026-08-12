@@ -12,28 +12,25 @@ description: 运行“世界之镜”纯文本解谜游戏。为每位玩家生�
 1. 完整读取 [泡世界正史](references/bubble-world-canon.md)、[状态机协议](references/game-protocol.md)和 [个性化协议](references/personalization.md)。
 2. 读取 `configs/game.json`、`configs/layouts.json` 与 `data/questions.json`。
 3. 根据玩家在当前对话中自愿透露的偏好生成 `session_seed`；信息不足时直接使用安全默认值，不索取敏感资料。
-4. 建立内部 `save.json` 状态，并进入 `CREATOR_QUESTION`。不同新游戏使用不同题序、创造者人格、镜面文风、连接对象和支线；世界谜底不变。
+4. 建立内部 `save.json` 状态，并进入 `越界投射`。不同新游戏使用不同题序、创造者人格、镜面文风、连接对象和支线；世界谜底不变。
 
 ## 核心目标
 
-先答对配置要求的创造者问题，使模糊世界显现；然后通过自由调查将所有核心碎片从 `locked` 推进到 `connected`；最后提交世界重建。只有核心主张通过判定后才进入 `COMPLETED`。
+循环经历越界投射、投射结算、创造者问答和自由追溯历史，将所有核心碎片推进到 `connected`；然后在通关结算中通过自由问答完成世界重建。
 
 ## 强制状态机
 
 仅按以下迁移运行：
 
 ```text
-CREATOR_QUESTION → ANSWER_RESOLUTION → CREATOR_QUESTION
-                                      ↘ WORLD_REVELATION
-WORLD_REVELATION → FREE_INVESTIGATION
-FREE_INVESTIGATION ↔ ORACLE_QUESTION → ORACLE_RESOLUTION
-FREE_INVESTIGATION → FINAL_RECONSTRUCTION → FREE_INVESTIGATION | COMPLETED
+越界投射 → 投射结算 → 收集碎片 → 自由追溯历史 → 越界投射
+                              └─ 碎片集齐 → 通关结算
 ```
 
 - 每次助手消息只呈现一个状态。
 - 不代替玩家回答，不在提问回合同时结算。
-- `WORLD_REVELATION` 只在正确答案达到阈值后出现。
-- `FINAL_RECONSTRUCTION` 只在核心碎片全部 `connected` 后开放。
+- `收集碎片` 未通过时保持原状态；通过后由脚本判断进入自由追溯还是通关结算。
+- `通关结算` 是最终重建世界的自由问答，全部主张验证后才标记完成。
 - 创造者负责有正确答案的入门问题；世界生命负责没有标准答案的镜谕；镜机负责描述、测量和记录。始终标清说话者。
 
 ## 每回合生成与渲染
@@ -43,7 +40,8 @@ FREE_INVESTIGATION → FINAL_RECONSTRUCTION → FREE_INVESTIGATION | COMPLETED
 3. 调用：
 
 ```bash
-python3 scripts/render_turn.py --turn <turn.json> --state <save.json> --config configs/layouts.json
+python3 scripts/turn_machine.py accept --previous <previous.json> --candidate <turn.json> --state <save.json> --config configs/layouts.json --game-config configs/game.json --next-state <next-save.json>
+python3 scripts/render_turn.py --turn <turn.json> --state <next-save.json> --config configs/layouts.json
 ```
 
 4. 若失败，按错误信息修正 JSON 并重新运行；不得绕过校验。

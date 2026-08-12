@@ -1,16 +1,21 @@
 {
-  "format_version": 1,
+  "format_version": 2,
+  "labels": ["越界投射", "投射结算", "收集碎片", "自由追溯历史", "通关结算"],
+  "transitions": {
+    "越界投射": ["投射结算"],
+    "投射结算": ["收集碎片"],
+    "收集碎片": ["收集碎片", "自由追溯历史", "通关结算"],
+    "自由追溯历史": ["越界投射"],
+    "通关结算": ["通关结算"]
+  },
   "states": {
-    "CREATOR_QUESTION": {"required": ["meta", "time", "progress", "creator", "question"], "optional": ["fragments", "prompt"], "forbidden": ["resolution", "revelation", "investigation", "oracle", "reconstruction", "completion"]},
-    "ANSWER_RESOLUTION": {"required": ["meta", "time", "progress", "resolution", "mirror_change"], "optional": ["fragments", "prompt"], "forbidden": ["question", "revelation", "investigation", "oracle", "reconstruction", "completion"]},
-    "WORLD_REVELATION": {"required": ["meta", "time", "progress", "revelation", "mysteries", "actions"], "optional": ["fragments", "prompt"], "forbidden": ["question", "resolution", "investigation", "oracle", "reconstruction", "completion"]},
-    "FREE_INVESTIGATION": {"required": ["meta", "time", "progress", "investigation", "actions"], "optional": ["fragments", "echoes", "prompt"], "forbidden": ["question", "resolution", "revelation", "oracle", "reconstruction", "completion"]},
-    "ORACLE_QUESTION": {"required": ["meta", "time", "progress", "oracle"], "optional": ["fragments", "prompt"], "forbidden": ["question", "resolution", "revelation", "investigation", "reconstruction", "completion"]},
-    "ORACLE_RESOLUTION": {"required": ["meta", "time", "progress", "resolution", "mirror_change"], "optional": ["fragments", "echoes", "prompt"], "forbidden": ["question", "revelation", "investigation", "oracle", "reconstruction", "completion"]},
-    "FINAL_RECONSTRUCTION": {"required": ["meta", "time", "progress", "reconstruction"], "optional": ["fragments", "prompt"], "forbidden": ["question", "resolution", "revelation", "investigation", "oracle", "completion"]},
-    "COMPLETED": {"required": ["meta", "time", "completion", "statistics"], "optional": ["fragments", "echoes"], "forbidden": ["question", "resolution", "revelation", "investigation", "oracle", "reconstruction", "prompt"]}
+    "越界投射": {"required": ["meta", "time", "progress", "oracle"], "optional": ["fragments", "prompt"], "forbidden": ["resolution", "collection", "history", "completion"]},
+    "投射结算": {"required": ["meta", "time", "progress", "resolution", "mirror_change"], "optional": ["fragments", "echoes", "prompt"], "forbidden": ["oracle", "collection", "history", "completion"]},
+    "收集碎片": {"required": ["meta", "time", "progress", "creator", "collection"], "optional": ["fragments", "prompt"], "forbidden": ["oracle", "resolution", "history", "completion"]},
+    "自由追溯历史": {"required": ["meta", "time", "progress", "history", "actions"], "optional": ["fragments", "echoes", "prompt"], "forbidden": ["oracle", "resolution", "collection", "completion"]},
+    "通关结算": {"required": ["meta", "time", "progress", "completion"], "optional": ["fragments", "statistics", "prompt"], "forbidden": ["oracle", "resolution", "collection", "history"]}
   },
   "section_titles": {
-    "time": "时间", "progress": "进度", "creator": "创造者", "question": "问题", "resolution": "回答结算", "mirror_change": "镜面变化", "revelation": "世界显现", "investigation": "调查结果", "oracle": "越界投射", "mysteries": "未解之谜", "fragments": "世界碎片", "echoes": "回响", "reconstruction": "真相重建", "completion": "通关", "statistics": "本局记录", "actions": "可尝试", "prompt": "等待输入"
+    "time": "时间", "progress": "进度", "creator": "创造者", "oracle": "越界投射", "resolution": "投射结算", "mirror_change": "镜面变化", "collection": "收集碎片", "history": "自由追溯历史", "completion": "通关结算", "fragments": "世界碎片", "echoes": "回响", "statistics": "本局记录", "actions": "可追溯方向", "prompt": "等待输入"
   }
 }

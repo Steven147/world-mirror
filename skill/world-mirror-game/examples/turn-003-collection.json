@@ -1,0 +1,8 @@
+{
+  "meta":{"id":"T003","label":"收集碎片","turn":3,"style":"档案员 · 冷静仪器"},
+  "time":{"mirror":"T+00:00:03","local":"尚未译解"},
+  "progress":{"connected":0,"total":8},
+  "creator":"创造者要求你解释这个世界最早掌握的自然现象。",
+  "collection":{"text":"无空气和液体的机械文明最可能先研究什么？","options":[{"id":"A","text":"电磁作用"},{"id":"B","text":"浮力"}]},
+  "prompt":"请选择答案。"
+}
