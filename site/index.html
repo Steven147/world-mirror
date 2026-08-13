@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="description" content="世界之镜玩家通关档案与共享世界观">
   <title>世界之镜 · 通关档案馆</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=3">
 </head>
 <body>
   <header class="hero">
@@ -20,10 +20,71 @@
   </header>
   <main>
     <section class="stats"><div><strong id="story-count">0</strong><span>通关故事</span></div><div><strong id="world-count">0</strong><span>已观测世界</span></div><div><strong id="thread-count">0</strong><span>社区母题</span></div></section>
-    <section class="archive"><div class="section-heading"><p>ARCHIVE</p><h2>最近抵达的观察者</h2></div><div id="stories" class="story-grid"><p class="empty">档案馆正在等待第一位通关者。</p></div></section>
-    <section class="graph-section"><div class="section-heading"><p>CONSTELLATION</p><h2>关系图谱</h2></div><div id="graph" class="graph"><span>故事、人物与世界碎片将在这里形成星图。</span></div></section>
+    <section class="archive">
+      <div class="section-heading"><p>ARCHIVE</p><h2>最近抵达的观察者</h2></div>
+      <div id="stories" class="story-grid"><p class="empty">档案馆正在等待第一位通关者。</p></div>
+    </section>
+    <section class="graph-section">
+      <div class="section-heading graph-heading">
+        <div><p>CONSTELLATION</p><h2>关系星图</h2></div>
+        <p class="section-note">选择一颗星，查看它与故事、人物和世界概念之间的联系。</p>
+      </div>
+      <div id="graph" class="graph-shell">
+        <div id="graph-stage" class="graph-stage" aria-label="故事关系星图">
+          <canvas id="graph-canvas" aria-hidden="true"></canvas>
+          <div id="graph-nodes" class="graph-nodes"></div>
+          <p id="graph-empty" class="graph-empty">故事、人物与世界碎片将在这里形成星图。</p>
+        </div>
+        <aside id="graph-detail" class="graph-detail" aria-live="polite">
+          <p class="eyebrow">SELECT A STAR</p>
+          <h3 id="graph-detail-title">尚未选择星点</h3>
+          <p id="graph-detail-type" class="graph-detail-type">点击星图中的节点开始观测</p>
+          <p id="graph-detail-description">每个节点都来自玩家公开故事中的人物、事件、地点或概念。</p>
+          <div id="graph-detail-relations" class="graph-relations"></div>
+        </aside>
+      </div>
+    </section>
   </main>
+  <dialog id="story-reader" class="story-reader" aria-labelledby="reader-title">
+    <div class="reader-shell">
+      <header class="reader-header">
+        <div>
+          <p id="reader-kicker" class="eyebrow">PUBLIC PLAYTHROUGH</p>
+          <h2 id="reader-title">通关记录</h2>
+          <p id="reader-summary" class="reader-summary"></p>
+        </div>
+        <button id="reader-close" class="icon-button" type="button" aria-label="关闭对话记录">×</button>
+      </header>
+      <div class="reader-body">
+        <aside class="reader-index" aria-label="回合目录">
+          <div class="reader-index-heading">
+            <span>完整流程</span>
+            <strong id="reader-progress">0 / 0</strong>
+          </div>
+          <div id="turn-list" class="turn-list" role="tablist" aria-orientation="vertical"></div>
+        </aside>
+        <article class="turn-reader" aria-live="polite">
+          <header class="turn-header">
+            <div>
+              <p id="turn-number" class="eyebrow">TURN 00</p>
+              <h3 id="turn-title">选择左侧回合</h3>
+            </div>
+            <div class="turn-time">
+              <span id="turn-mirror-time"></span>
+              <span id="turn-local-time"></span>
+            </div>
+          </header>
+          <div id="turn-content" class="turn-content"></div>
+          <footer class="reader-controls">
+            <button id="turn-prev" type="button">← 上一回合</button>
+            <p>公开整理版保留每回合权威档案，不包含未公开的原始聊天与系统信息。</p>
+            <button id="turn-next" type="button">下一回合 →</button>
+          </footer>
+        </article>
+      </div>
+    </div>
+  </dialog>
   <footer><span>世界之镜 · 玩家共同书写的世界档案</span><a href="https://github.com/Steven147/world-mirror/discussions">评论与讨论</a></footer>
-  <script src="app.js"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>

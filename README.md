@@ -35,6 +35,8 @@ stories/<world-id>/<story-id>/meta.json
 stories/<world-id>/<story-id>/story.md
 ```
 
+档案馆首页会把公开元数据组织为故事、人物、事件与概念的关系星图；进入故事后，可以按回合翻阅投稿中公开的完整权威对话档案。原始聊天、系统信息和未公开输入不会进入网页。
+
 投稿步骤见 [CONTRIBUTING.md](CONTRIBUTING.md)。公开投稿前请删除隐私、完整聊天记录、系统提示、隐藏答案、令牌和本地路径。
 
 ## 仓库内容
@@ -43,6 +45,6 @@ stories/<world-id>/<story-id>/story.md
 - `install.sh`：一键安装脚本。
 - `stories/`：已合并的玩家通关故事。
 - `site/`：GitHub Pages 静态页面。
-- `scripts/build_site.py`：根据故事元数据生成网站数据与关系图谱。
+- `scripts/build_site.py`：根据故事元数据与公开回合档案生成网站索引、关系图谱和对话阅读数据。
 
 `world-mirror-creator` 是作者的本地创作记录，不属于本仓库。

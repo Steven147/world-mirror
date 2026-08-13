@@ -9,47 +9,40 @@ test('renders the published story without using a stale index', async () => {
   const index = JSON.parse(
     await readFile(new URL('../site/stories.json', import.meta.url), 'utf8'),
   );
-  const elements = new Map([
-    ['#story-count', { textContent: '' }],
-    ['#world-count', { textContent: '' }],
-    ['#thread-count', { textContent: '' }],
-    ['#stories', { innerHTML: '' }],
-  ]);
+  const story = index.stories.find(
+    (candidate) => candidate.story_id === 'wm-20260813-fe7aa82e',
+  );
+  assert.ok(story.detail_path);
+  const details = JSON.parse(
+    await readFile(new URL(`../site/${story.detail_path}`, import.meta.url), 'utf8'),
+  );
+  const detail = details.stories[story.detail_key];
   let fetchOptions;
-  const document = {
-    querySelector(selector) {
-      return elements.get(selector);
-    },
-    createElement() {
-      let text = '';
-      return {
-        set textContent(value) {
-          text = String(value);
-        },
-        get innerHTML() {
-          return text
-            .replaceAll('&', '&amp;')
-            .replaceAll('<', '&lt;')
-            .replaceAll('>', '&gt;')
-            .replaceAll('"', '&quot;')
-            .replaceAll("'", '&#39;');
-        },
-      };
-    },
-  };
   const fetch = async (_path, options) => {
     fetchOptions = options;
-    return { json: async () => structuredClone(index) };
+    return { ok: true, json: async () => structuredClone(index) };
   };
+  const context = vm.createContext({ fetch, Set });
 
-  vm.runInNewContext(app, { document, fetch, Set });
-  await new Promise((resolve) => setImmediate(resolve));
+  vm.runInContext(app, context);
+  await vm.runInContext('loadJson("./stories.json")', context);
 
   assert.equal(fetchOptions.cache, 'no-store');
   assert.deepEqual(Object.keys(fetchOptions), ['cache']);
-  assert.equal(elements.get('#story-count').textContent, 1);
+
+  context.stories = index.stories;
+  const graph = vm.runInContext('buildGraphModel(stories)', context);
+  assert.ok(graph.nodes.some((node) => node.kind === 'story'));
+  assert.equal(graph.nodes.filter((node) => node.kind === 'character').length, 7);
+  assert.ok(graph.nodes.some((node) => node.kind === 'character' && node.label === '砺弦'));
+  assert.ok(graph.edges.length > 0);
+
+  context.firstTurn = detail.dialogue[0];
+  const turnHtml = vm.runInContext('renderTurn(firstTurn)', context);
+  assert.equal(detail.dialogue.length, 35);
+  assert.match(turnHtml, /越界投射/);
   assert.match(
-    elements.get('#stories').innerHTML,
-    /沉默联播：从地核空腔到星空/,
+    turnHtml,
+    /砺弦/,
   );
 });
