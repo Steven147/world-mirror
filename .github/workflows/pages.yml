@@ -16,8 +16,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: python3 scripts/validate_stories.py
+      - run: python3 -m unittest discover -s tests -p 'test_*.py'
+      - run: node --test tests/test_site_app.mjs
       - run: python3 scripts/build_site.py
-      - run: cp stories/index.json site/stories.json
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

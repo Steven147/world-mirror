@@ -9,5 +9,13 @@ for path in sorted((ROOT / "stories").glob("*/*/meta.json")):
     meta = json.loads(path.read_text(encoding="utf-8"))
     meta["story_path"] = str(path.with_name("story.md").relative_to(ROOT))
     stories.append(meta)
-(ROOT / "stories" / "index.json").write_text(json.dumps({"schema_version": 1, "stories": stories}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-print(f"Built index for {len(stories)} stories.")
+
+index = json.dumps(
+    {"schema_version": 1, "stories": stories},
+    ensure_ascii=False,
+    indent=2,
+) + "\n"
+for output in (ROOT / "stories" / "index.json", ROOT / "site" / "stories.json"):
+    output.write_text(index, encoding="utf-8")
+
+print(f"Built site index for {len(stories)} stories.")

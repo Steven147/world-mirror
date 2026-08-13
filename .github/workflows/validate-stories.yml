@@ -1,7 +1,12 @@
 name: Validate stories
 on:
   pull_request:
-    paths: ["stories/**"]
+    paths:
+      - "stories/**"
+      - "site/**"
+      - "scripts/build_site.py"
+      - "tests/**"
+      - ".github/workflows/**"
 permissions:
   contents: read
 jobs:
@@ -10,3 +15,5 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: python3 scripts/validate_stories.py
+      - run: python3 -m unittest discover -s tests -p 'test_*.py'
+      - run: node --test tests/test_site_app.mjs

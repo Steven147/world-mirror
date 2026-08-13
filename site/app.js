@@ -1,5 +1,5 @@
 const rootPath = './stories.json';
-fetch(rootPath).then(r=>r.json()).then(({stories})=>{
+fetch(rootPath, { cache: 'no-store' }).then(r=>r.json()).then(({stories})=>{
   document.querySelector('#story-count').textContent=stories.length;
   document.querySelector('#world-count').textContent=new Set(stories.map(x=>x.world_id)).size;
   document.querySelector('#thread-count').textContent=stories.filter(x=>x.kind==='community-thread').length;
