@@ -1,0 +1,279 @@
+{
+  "schema_version": 2,
+  "story_id": "wm-20260813-fe7aa82e",
+  "world_id": "bubble-world",
+  "title": "沉默联播：从地核空腔到星空",
+  "author": {
+    "display_name": "匿名观察者",
+    "github": ""
+  },
+  "kind": "player-story",
+  "summary": "沉默联播拼合群星机械文明穿越岩层抵达宇宙",
+  "worldview": "空心行星地核中的机械文明，以电磁与放射过程生存，经由空间冲突、密度测量、引力与流体科学抵达海面和星空。",
+  "route": {
+    "creator_voice": "沉默工程师",
+    "mirror_style": "活体金属",
+    "entry_route": "针尖返航",
+    "local_branch": "证据由被定罪者保存"
+  },
+  "fragments": [
+    "电流构成的血液",
+    "被盗走的空间",
+    "逐渐稀薄的岩层",
+    "迟来的方向",
+    "致命的无形岩",
+    "不需挖掘的上升",
+    "球壳中央的失重",
+    "岩层之外的星空"
+  ],
+  "keywords": [
+    {
+      "name": "砺弦",
+      "type": "人物",
+      "description": "针尖号唯一归来的随船科学家，选择保全同伴遗存"
+    },
+    {
+      "name": "脊白-4",
+      "type": "人物",
+      "description": "以自身磁记忆换取岩样测量公开传播的年轻执法者"
+    },
+    {
+      "name": "缝九",
+      "type": "人物",
+      "description": "把救援碎岩填入纪念空间、找到第四条路的无名挖掘手"
+    },
+    {
+      "name": "衡沫",
+      "type": "人物",
+      "description": "把完整星空拆成分片交给各城共同重建的观测者"
+    },
+    {
+      "name": "针尖号",
+      "type": "事件",
+      "description": "带回岩层向外密度递减线索的禁航泡船返航事件"
+    },
+    {
+      "name": "沉默联播",
+      "type": "事件",
+      "description": "八千余维护节点共同拼合完整星空的分布式传播"
+    },
+    {
+      "name": "泡世界",
+      "type": "地点",
+      "description": "位于行星正中心、机械文明最初生活的球形地核空腔"
+    },
+    {
+      "name": "空间盗窃",
+      "type": "概念",
+      "description": "碎岩占据有限公共空腔而使私人掘进成为政治禁忌"
+    },
+    {
+      "name": "密度递减",
+      "type": "物理规律",
+      "description": "岩层向行星表面逐渐变轻、动摇密实宇宙论的趋势"
+    },
+    {
+      "name": "浮力",
+      "type": "物理规律",
+      "description": "让密封水箭无需继续掘进便穿过海洋上升的作用"
+    }
+  ],
+  "characters": [
+    "砺弦",
+    "脊白-4",
+    "缝九",
+    "负弦",
+    "壳灯",
+    "衡沫",
+    "零衡"
+  ],
+  "concepts": [
+    "泡世界",
+    "半导体生命",
+    "公共空间",
+    "空间盗窃",
+    "密度递减",
+    "万有引力",
+    "流体科学",
+    "沉默联播"
+  ],
+  "fragment_answers": [
+    {
+      "fragment_id": "F03",
+      "question": "若不同方向的岩样都随远离家园而密度降低，最合理的新假说是什么？",
+      "answer": "A",
+      "passed": true,
+      "answered_at": "2026-08-13T12:55:02+08:00",
+      "collected_at": null
+    },
+    {
+      "fragment_id": "F01",
+      "question": "一个没有空气、液体和统一上下方向的文明，最可能先系统掌握哪类现象？",
+      "answer": "B",
+      "passed": true,
+      "answered_at": "2026-08-13T13:05:33+08:00",
+      "collected_at": null
+    },
+    {
+      "fragment_id": "F02",
+      "question_id": "CQ02",
+      "question_turn": 11,
+      "answer_turn": 12,
+      "question": "在有限球形空腔中向岩壁挖隧道，为什么可能被视为盗窃？",
+      "answer": "C",
+      "passed": true,
+      "answered_at": "2026-08-13T13:24:36+08:00",
+      "collected_at": "2026-08-13T13:24:36+08:00"
+    },
+    {
+      "fragment_id": "F04",
+      "question_id": "CQ04",
+      "question_turn": 15,
+      "answer_turn": 16,
+      "question": "远离球形空腔后，物体开始缓慢移向空腔一侧，首先说明什么？",
+      "answer": "A",
+      "passed": true,
+      "answered_at": "2026-08-13T13:42:46+08:00",
+      "collected_at": "2026-08-13T13:42:46+08:00"
+    },
+    {
+      "fragment_id": "F05",
+      "question_id": "CQ05",
+      "question_turn": 19,
+      "answer_turn": 20,
+      "question": "一种依赖裸露电路活动的机械生命，面对未知导电液体时最大的直接风险是什么？",
+      "answer": "B",
+      "passed": true,
+      "answered_at": "2026-08-13T13:49:53+08:00",
+      "collected_at": "2026-08-13T13:49:53+08:00"
+    },
+    {
+      "fragment_id": "F06",
+      "question_id": "CQ06",
+      "question_turn": 23,
+      "answer_turn": 24,
+      "question": "密封耐压容器进入液体后，无须继续掘进也能上升，最可能依靠什么？",
+      "answer": "A",
+      "passed": true,
+      "answered_at": "2026-08-13T14:01:00+08:00",
+      "collected_at": "2026-08-13T14:01:00+08:00"
+    },
+    {
+      "fragment_id": "F07",
+      "question_id": "CQ07",
+      "question_turn": 27,
+      "answer_turn": 28,
+      "question": "若物体在球形空腔中央近乎没有固定坠落方向，最合理的解释是什么？",
+      "answer": "A",
+      "passed": true,
+      "answered_at": "2026-08-13T14:30:03+08:00",
+      "collected_at": "2026-08-13T14:30:03+08:00"
+    },
+    {
+      "fragment_id": "F08",
+      "question_id": "CQ08",
+      "question_turn": 31,
+      "answer_turn": 32,
+      "question": "文明穿过岩层与液体抵达海面后，哪项观察最直接推翻了岩层就是全部宇宙的旧模型？",
+      "answer": "B",
+      "passed": true,
+      "answered_at": "2026-08-13T14:59:43+08:00",
+      "collected_at": "2026-08-13T14:59:43+08:00"
+    }
+  ],
+  "started_at": "2026-08-13T12:50:32+08:00",
+  "completed_at": "2026-08-13T15:06:08+08:00",
+  "themes": [
+    "证据与记忆",
+    "公共资源与权力",
+    "沉默中的第三条路",
+    "分布式真相"
+  ],
+  "relations": [
+    "砺弦保住遗存，却把保存证据的代价转交给脊白-4",
+    "缝九对纪念空间的挪用成为后来反叛思想的历史种子",
+    "衡沫继承分散证据的传统，使星空无法被单一机构删除"
+  ],
+  "consent": {
+    "public": true,
+    "license": "all-rights-reserved"
+  },
+  "turn_count": 35,
+  "turn_files": [
+    "turns/turn-001.md",
+    "turns/turn-002.md",
+    "turns/turn-003.md",
+    "turns/turn-004.md",
+    "turns/turn-005.md",
+    "turns/turn-006.md",
+    "turns/turn-007.md",
+    "turns/turn-008.md",
+    "turns/turn-009.md",
+    "turns/turn-010.md",
+    "turns/turn-011.md",
+    "turns/turn-012.md",
+    "turns/turn-013.md",
+    "turns/turn-014.md",
+    "turns/turn-015.md",
+    "turns/turn-016.md",
+    "turns/turn-017.md",
+    "turns/turn-018.md",
+    "turns/turn-019.md",
+    "turns/turn-020.md",
+    "turns/turn-021.md",
+    "turns/turn-022.md",
+    "turns/turn-023.md",
+    "turns/turn-024.md",
+    "turns/turn-025.md",
+    "turns/turn-026.md",
+    "turns/turn-027.md",
+    "turns/turn-028.md",
+    "turns/turn-029.md",
+    "turns/turn-030.md",
+    "turns/turn-031.md",
+    "turns/turn-032.md",
+    "turns/turn-033.md",
+    "turns/turn-034.md",
+    "turns/turn-035.md"
+  ],
+  "dialogue_files": [
+    "dialogue/turn-001.json",
+    "dialogue/turn-002.json",
+    "dialogue/turn-003.json",
+    "dialogue/turn-004.json",
+    "dialogue/turn-005.json",
+    "dialogue/turn-006.json",
+    "dialogue/turn-007.json",
+    "dialogue/turn-008.json",
+    "dialogue/turn-009.json",
+    "dialogue/turn-010.json",
+    "dialogue/turn-011.json",
+    "dialogue/turn-012.json",
+    "dialogue/turn-013.json",
+    "dialogue/turn-014.json",
+    "dialogue/turn-015.json",
+    "dialogue/turn-016.json",
+    "dialogue/turn-017.json",
+    "dialogue/turn-018.json",
+    "dialogue/turn-019.json",
+    "dialogue/turn-020.json",
+    "dialogue/turn-021.json",
+    "dialogue/turn-022.json",
+    "dialogue/turn-023.json",
+    "dialogue/turn-024.json",
+    "dialogue/turn-025.json",
+    "dialogue/turn-026.json",
+    "dialogue/turn-027.json",
+    "dialogue/turn-028.json",
+    "dialogue/turn-029.json",
+    "dialogue/turn-030.json",
+    "dialogue/turn-031.json",
+    "dialogue/turn-032.json",
+    "dialogue/turn-033.json",
+    "dialogue/turn-034.json",
+    "dialogue/turn-035.json"
+  ],
+  "total_play_seconds": 8136,
+  "exported_at": "2026-08-13T16:03:16+08:00",
+  "uploaded_at": "2026-08-13T16:09:04+08:00"
+}
