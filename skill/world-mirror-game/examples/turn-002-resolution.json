@@ -1,7 +1,6 @@
 {
   "meta":{"id":"T002","label":"投射结算","turn":2,"real_time":"2026-08-13T01:01:00+08:00","style":"档案员 · 冷静仪器"},
   "time":{"mirror":"T+00:00:03","local":"尚未译解"},
-  "progress":{"projection_count":1,"fragment_count":0},
   "resolution":{"result":"概念已抵达","explanation":"接收者把答案理解为优先保存证据。"},
   "mirror_change":"它开始拆取仍可使用的能量单元。",
   "prompt":"继续进入创造者问答。"

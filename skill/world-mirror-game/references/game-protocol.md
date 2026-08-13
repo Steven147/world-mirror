@@ -33,11 +33,11 @@
 
 ### 做什么
 
-创造者根据刚才的投射、结算及已追溯历史，提出一个具有可判定答案的问题。玩家通过回答证明自己理解了某条因果联系。答对后脚本把对应碎片推进一个阶段；答错时给提示，本状态继续，直到该问题通过。
+创造者根据刚才的投射、结算及已追溯历史，从 `data/questions.json` 提出一个具有可判定答案的问题，并在 `collection.question_id`、`collection.fragment_id` 绑定问题和一个尚未收集的核心碎片。玩家通过回答证明自己理解了某条因果联系。Python 根据答案键判定：答对后直接收集该核心碎片；答错时给提示，本状态继续，直到该问题通过。
 
 ### 流转
 
-- 当前问题未通过：保持 `收集碎片`，不增加碎片进度。
+- 当前问题未通过：保存本次失败回答，保持 `收集碎片`，不增加核心碎片进度。
 - 问题通过且仍有核心碎片未集齐：进入 `自由追溯历史`。
 - 问题通过且全部核心碎片均为 `connected`：进入 `通关结算`。
 
@@ -104,7 +104,7 @@ Python 状态机读取上一回合、当前存档和候选回合：
 - 候选回合号必须是上一回合号加一。
 - 候选标签必须符合上述迁移。
 - 存档中的当前标签必须等于上一回合标签。
-- `收集碎片 → 通关结算` 只有在候选状态更新后全部核心碎片均为 `connected` 时允许。
+- `收集碎片 → 通关结算` 只有在本次成功回答后全部核心碎片均已收集时允许。
 - `收集碎片 → 自由追溯历史` 在碎片未集齐时允许。
 - `收集碎片 → 越界投射` 只在合法 `skip_collection` 时允许，并强制携带 `time_jump`。
 - `通关结算` 完成只由全部必要主张验证决定。
@@ -113,26 +113,28 @@ Python 状态机读取上一回合、当前存档和候选回合：
 
 ## 固定进度
 
-每个候选回合必须包含且只能包含：
+候选回合 JSON 不得包含 `progress`。状态机接受回合并完成状态更新后，必须从新存档的成功回答记录与核心碎片配置生成：
 
 ```json
 "progress": {
   "projection_count": 1,
-  "fragment_count": 0
+  "core_fragments": "2/8"
 }
 ```
 
 - `projection_count`：本局已接受的越界投射次数；每次进入新的越界投射时由状态机加一。
-- `fragment_count`：状态为 `connected` 的核心碎片数量。
+- `core_fragments`：去重后的成功回答核心碎片数/`required_core_fragments` 总数。一次成功的收集碎片回答只增加一个核心碎片。
 
-两项都由 Python 根据存档计算。模型不得自行修改，不显示碎片总数，也不得增加其他进度字段。
+两项都由 Python 根据存档计算，并写入独立的已接受对话 JSON。模型不得提供或修改这些值，也不得增加其他进度字段。候选 JSON 若含 `progress`，应直接拒绝，避免形成第二个计数来源。
 
-运行时必须使用 `turn_machine.py accept ... --markdown-output turns/turn-NNN.md --render`，让接受、Markdown 渲染和回合归档在同一进程中完成。标准输出就是最终玩家消息；保存文件必须与标准输出完全相同。候选 JSON 只是中间文件，不得直接展示。
+运行时必须使用 `turn_machine.py accept ... --dialogue-output dialogue/turn-NNN.json --markdown-output turns/turn-NNN.md --render`，让状态接受、规范化 JSON 回写和 Markdown 渲染在同一进程中完成。`dialogue/turn-NNN.json` 是权威回合数据；Markdown 只是它的渲染产物，保存文件必须与标准输出完全相同。候选 JSON 只是中间文件，不得直接展示。
+
+Session 目录固定为根目录 `save.json`、`candidates/`、`dialogue/` 与 `turns/`。启动回合保存在 `dialogue/turn-000.json`；不得继续生成旧版 `turn-json/`、根目录 `bootstrap.json` 或 `save.bootstrap.json`。旧 session 由 `scripts/migrate_session.py` 规范化并逐回合验证后清理旧入口。
 
 ## 现实时间与碎片问答
 
 - 每个回合的 `meta.real_time` 必须是带时区的 ISO 8601 现实时间戳，并显示在回合 Markdown 中。
 - 时间不得早于上一回合；存档维护 `started_at` 与 `last_real_time`。
-- 碎片状态前进时，`state_updates` 必须同时携带 `fragment_answer`：碎片 ID、问题、玩家回答、是否通过和回答时间。
-- 状态机记录每次问答；碎片首次达到 `connected` 时，将该回合现实时间写为 `collected_at`。
+- 从 `收集碎片` 处理玩家答案时，`state_updates.fragment_answer` 必须且只能携带玩家答案和回答时间；碎片 ID、问题文本与正确性由上一回合及 `data/questions.json` 决定，不能重复输入。
+- 状态机记录每次成功或失败回答，并自动写入 `fragment_id`、`question_id`、`question_turn`、`answer_turn`、问题文本、玩家答案、是否通过、回答时间和收集时间。成功时直接将核心碎片设为 `connected`；失败时 `collected_at` 为 `null`。
 - 这些记录用于计算总游玩时间、每个碎片的回答时间和收集时间，不使用镜机纪时替代。
